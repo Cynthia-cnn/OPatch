@@ -20,13 +20,10 @@ dependencyResolutionManagement {
         }
     }
     versionCatalogs {
-        create("libs") {
-            from(files("core/gradle/libs.versions.toml"))
-        }
-        create("lspatch") {
-            from(files("gradle/lspatch.versions.toml"))
-        }
+    create("lspatch") {
+        from(files("gradle/lspatch.versions.toml"))
     }
+ }
 }
 
 rootProject.name = "LSPatch"
