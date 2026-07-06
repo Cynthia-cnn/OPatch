@@ -1,0 +1,53 @@
+name: Build OPatch
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    name: Build on Ubuntu
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Verify manifest-editor exists
+        run: |
+          if [ ! -d "patch/libs/manifest-editor" ]; then
+            echo "::error::Folder patch/libs/manifest-editor not found!"
+            exit 1
+          fi
+
+      - name: Build Release APKs
+        run: ./gradlew buildRelease --no-daemon --stacktrace
+        
+      - name: Upload Signed Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: opatch-release-apk
+          path: manager/build/outputs/apk/release/*.apk
+          retention-days: 14
+          
+      - name: Upload Patch Loader AAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: opatch-loader-aar
+          path: jar/build/outputs/aar/*.aar
+          retention-days: 14
